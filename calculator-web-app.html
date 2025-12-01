@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 02 - Calculator Web Application</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2d3142 0%, #1a1d2e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative Background Shapes */
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.5;
+        }
+
+        .shape1 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #4ecdc4, transparent);
+            top: -100px;
+            left: -100px;
+        }
+
+        .shape2 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #5ea3ec, transparent);
+            bottom: -150px;
+            right: -150px;
+        }
+
+        .shape3 {
+            width: 200px;
+            height: 200px;
+            border: 3px solid #e74c3c;
+            top: 50%;
+            right: 10%;
+            animation: rotate 20s linear infinite;
+        }
+
+        .shape4 {
+            width: 250px;
+            height: 250px;
+            border: 3px solid #4ecdc4;
+            bottom: 20%;
+            left: 10%;
+            animation: rotate 15s linear infinite reverse;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Main Container */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        /* Left Side - Info */
+        .info-section {
+            color: #fff;
+        }
+
+        .task-badge {
+            display: inline-block;
+            border: 3px solid #e74c3c;
+            padding: 12px 35px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 4px;
+            margin-bottom: 30px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .info-section h1 {
+            font-size: 3rem;
+            margin-bottom: 30px;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #fff, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .task-description {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #4ecdc4;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .task-description h2 {
+            color: #4ecdc4;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+
+        .task-description p {
+            color: #ddd;
+            line-height: 1.8;
+            font-size: 1.05rem;
+            margin-bottom: 10px;
+        }
+
+        .features-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .features-list li {
+            padding: 8px 0;
+            color: #ccc;
+            font-size: 0.95rem;
+        }
+
+        .features-list li::before {
+            content: "✓";
+            color: #4ecdc4;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* Calculator Container */
+        .calculator-wrapper {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .calculator {
+            background: linear-gradient(145deg, #2a2d3a, #1f212b);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Display */
+        .display {
+            background: linear-gradient(145deg, #1a1c26, #23252f);
+            border-radius: 15px;
+            padding: 25px 20px;
+            margin-bottom: 25px;
+            box-shadow: 
+                inset 0 4px 10px rgba(0, 0, 0, 0.4),
+                0 1px 2px rgba(255, 255, 255, 0.1);
+            min-height: 100px;
+        }
+
+        .display-history {
+            color: #888;
+            font-size: 1rem;
+            text-align: right;
+            margin-bottom: 8px;
+            min-height: 24px;
+        }
+
+        .display-value {
+            color: #fff;
+            font-size: 2.5rem;
+            text-align: right;
+            font-weight: 300;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+        }
+
+        .display-value::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .display-value::-webkit-scrollbar-thumb {
+            background: #4ecdc4;
+            border-radius: 2px;
+        }
+
+        /* Error Display */
+        .error {
+            color: #e74c3c !important;
+            font-size: 1.5rem !important;
+        }
+
+        /* Buttons Grid */
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            background: linear-gradient(145deg, #2d3142, #252836);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1.5rem;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 
+                0 4px 10px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            font-weight: 500;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(78, 205, 196, 0.3);
+            background: linear-gradient(145deg, #343749, #2a2d3e);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Special Buttons */
+        .btn-function {
+            background: linear-gradient(145deg, #3a3d4e, #30333f);
+            color: #4ecdc4;
+            font-weight: 600;
+        }
+
+        .btn-function:hover {
+            background: linear-gradient(145deg, #424558, #383b4a);
+            box-shadow: 0 6px 15px rgba(78, 205, 196, 0.4);
+        }
+
+        .btn-operator {
+            background: linear-gradient(145deg, #5ea3ec, #4a8bd6);
+            font-weight: 600;
+        }
+
+        .btn-operator:hover {
+            background: linear-gradient(145deg, #6fb0f5, #5a98e3);
+            box-shadow: 0 6px 15px rgba(94, 163, 236, 0.5);
+        }
+
+        .btn-equals {
+            background: linear-gradient(145deg, #4ecdc4, #3fb8b0);
+            grid-column: span 2;
+            font-weight: 600;
+        }
+
+        .btn-equals:hover {
+            background: linear-gradient(145deg, #5ed9d1, #4ac5bd);
+            box-shadow: 0 6px 20px rgba(78, 205, 196, 0.6);
+        }
+
+        .btn-clear {
+            background: linear-gradient(145deg, #e74c3c, #d43f31);
+            font-weight: 600;
+        }
+
+        .btn-clear:hover {
+            background: linear-gradient(145deg, #f15c4c, #e44d3f);
+            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.5);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .info-section {
+                text-align: center;
+            }
+
+            .task-badge {
+                font-size: 1.5rem;
+            }
+
+            .info-section h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .calculator-wrapper {
+                padding: 25px;
+            }
+
+            .calculator {
+                padding: 20px;
+            }
+
+            button {
+                padding: 20px;
+                font-size: 1.3rem;
+            }
+
+            .display-value {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                gap: 30px;
+            }
+
+            .info-section h1 {
+                font-size: 2rem;
+            }
+
+            .task-description {
+                padding: 20px;
+            }
+
+            button {
+                padding: 18px;
+                font-size: 1.2rem;
+            }
+
+            .display-value {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Decorative Background Shapes -->
+    <div class="bg-shape shape1"></div>
+    <div class="bg-shape shape2"></div>
+    <div class="bg-shape shape3"></div>
+    <div class="bg-shape shape4"></div>
+
+    <div class="container">
+        <!-- Left Side - Information -->
+        <div class="info-section">
+            <div class="task-badge">TASK 02 (Alternative)</div>
+            <h1>CALCULATOR WEB APPLICATION</h1>
+            
+            <div class="task-description">
+                <h2>Build a fully functional calculator</h2>
+                <p>Practice DOM manipulation, event handling, and basic arithmetic operations.</p>
+                <p>Implement functions to handle input parsing, event listeners on equal button, error handling, and keyboard input handling.</p>
+                
+                <ul class="features-list">
+                    <li>DOM Manipulation for dynamic display updates</li>
+                    <li>Event Listeners for all button clicks</li>
+                    <li>Keyboard Support for easy input</li>
+                    <li>Error Handling for invalid operations</li>
+                    <li>Input Parsing for complex calculations</li>
+                    <li>History Display for tracking operations</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Side - Calculator -->
+        <div class="calculator-wrapper">
+            <div class="calculator">
+                <div class="display">
+                    <div class="display-history" id="history"></div>
+                    <div class="display-value" id="display">0</div>
+                </div>
+                
+                <div class="buttons">
+                    <button class="btn-function" onclick="clearAll()">AC</button>
+                    <button class="btn-function" onclick="deleteLast()">DEL</button>
+                    <button class="btn-function" onclick="appendOperator('%')">%</button>
+                    <button class="btn-operator" onclick="appendOperator('/')">÷</button>
+                    
+                    <button onclick="appendNumber('7')">7</button>
+                    <button onclick="appendNumber('8')">8</button>
+                    <button onclick="appendNumber('9')">9</button>
+                    <button class="btn-operator" onclick="appendOperator('*')">×</button>
+                    
+                    <button onclick="appendNumber('4')">4</button>
+                    <button onclick="appendNumber('5')">5</button>
+                    <button onclick="appendNumber('6')">6</button>
+                    <button class="btn-operator" onclick="appendOperator('-')">−</button>
+                    
+                    <button onclick="appendNumber('1')">1</button>
+                    <button onclick="appendNumber('2')">2</button>
+                    <button onclick="appendNumber('3')">3</button>
+                    <button class="btn-operator" onclick="appendOperator('+')">+</button>
+                    
+                    <button onclick="appendNumber('0')">0</button>
+                    <button onclick="appendNumber('.')">.</button>
+                    <button class="btn-equals" onclick="calculate()">=</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentInput = '0';
+        let previousInput = '';
+        let operator = '';
+        let shouldResetDisplay = false;
+
+        const display = document.getElementById('display');
+        const history = document.getElementById('history');
+
+        // DOM Manipulation - Update Display
+        function updateDisplay() {
+            display.textContent = currentInput;
+            if (previousInput && operator) {
+                history.textContent = `${previousInput} ${operator}`;
+            } else {
+                history.textContent = '';
+            }
+        }
+
+        // Input Parsing - Append Number
+        function appendNumber(num) {
+            if (display.classList.contains('error')) {
+                clearAll();
+            }
+            
+            if (shouldResetDisplay) {
+                currentInput = num;
+                shouldResetDisplay = false;
+            } else {
+                if (currentInput === '0' && num !== '.') {
+                    currentInput = num;
+                } else {
+                    // Prevent multiple decimal points
+                    if (num === '.' && currentInput.includes('.')) {
+                        return;
+                    }
+                    currentInput += num;
+                }
+            }
+            updateDisplay();
+        }
+
+        // Event Handling - Operator Input
+        function appendOperator(op) {
+            if (display.classList.contains('error')) {
+                clearAll();
+            }
+            
+            if (previousInput && operator && !shouldResetDisplay) {
+                calculate();
+            }
+            
+            previousInput = currentInput;
+            operator = op;
+            shouldResetDisplay = true;
+            updateDisplay();
+        }
+
+        // Basic Arithmetic Operations & Error Handling
+        function calculate() {
+            if (!previousInput || !operator) return;
+            
+            display.classList.remove('error');
+            
+            try {
+                const prev = parseFloat(previousInput);
+                const current = parseFloat(currentInput);
+                let result;
+
+                // Input Parsing & Arithmetic Operations
+                switch (operator) {
+                    case '+':
+                        result = prev + current;
+                        break;
+                    case '-':
+                        result = prev - current;
+                        break;
+                    case '*':
+                        result = prev * current;
+                        break;
+                    case '/':
+                        // Error Handling - Division by zero
+                        if (current === 0) {
+                            throw new Error('Cannot divide by zero');
+                        }
+                        result = prev / current;
+                        break;
+                    case '%':
+                        result = prev % current;
+                        break;
+                    default:
+                        return;
+                }
+
+                // Error Handling - Check for invalid results
+                if (!isFinite(result)) {
+                    throw new Error('Invalid operation');
+                }
+
+                // Round to avoid floating point errors
+                result = Math.round(result * 100000000) / 100000000;
+                
+                currentInput = result.toString();
+                operator = '';
+                previousInput = '';
+                shouldResetDisplay = true;
+                updateDisplay();
+                
+            } catch (error) {
+                // Error Handling - Display error message
+                display.classList.add('error');
+                display.textContent = 'Error';
+                history.textContent = error.message;
+                previousInput = '';
+                operator = '';
+                shouldResetDisplay = true;
+            }
+        }
+
+        // DOM Manipulation - Clear All
+        function clearAll() {
+            currentInput = '0';
+            previousInput = '';
+            operator = '';
+            shouldResetDisplay = false;
+            display.classList.remove('error');
+            updateDisplay();
+        }
+
+        // DOM Manipulation - Delete Last Character
+        function deleteLast() {
+            if (display.classList.contains('error')) {
+                clearAll();
+                return;
+            }
+            
+            if (currentInput.length > 1) {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        // Event Listeners - Keyboard Input Handling
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '0' && e.key <= '9' || e.key === '.') {
+                appendNumber(e.key);
+            } else if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/' || e.key === '%') {
+                appendOperator(e.key);
+            } else if (e.key === 'Enter' || e.key === '=') {
+                e.preventDefault();
+                calculate();
+            } else if (e.key === 'Escape') {
+                clearAll();
+            } else if (e.key === 'Backspace') {
+                e.preventDefault();
+                deleteLast();
+            }
+        });
+
+        // Initialize
+        updateDisplay();
+    </script>
+</body>
+</html>
